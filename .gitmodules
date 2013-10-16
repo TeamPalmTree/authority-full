@@ -1,9 +1,6 @@
 [submodule "fuel/core"]
 	path = fuel/core
 	url = https://github.com/fuel/core
-[submodule "fuel/app"]
-	path = fuel/app
-	url = https://github.com/TeamPalmTree/authority
 [submodule "fuel/packages/orm"]
 	path = fuel/packages/orm
 	url = https://github.com/fuel/orm
@@ -25,3 +22,6 @@
 [submodule "public/assets/shared"]
 	path = public/assets/shared
 	url = https://github.com/TeamPalmTree/assets
+[submodule "fuel/app"]
+	path = fuel/app
+	url = https://github.com/TeamPalmTree/authority
