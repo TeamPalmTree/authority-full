@@ -19,7 +19,11 @@
         "php": ">=5.3.3",
         "monolog/monolog": "1.5.*",
     	"fuelphp/upload": "2.0.1",
-		"twitter/bootstrap": "2.3.*"
+		"twitter/bootstrap": "2.3.*",
+        "opauth/opauth": "0.4.*",
+        "opauth/facebook": "dev-master",
+        "opauth/google": "dev-master",
+        "opauth/github": "dev-master"
     },
     "suggest": {
         "mustache/mustache": "Allow Mustache templating with the Parser package",
