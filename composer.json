@@ -18,8 +18,8 @@
     "require": {
         "php": ">=5.3.3",
         "monolog/monolog": "1.5.*",
-    	"fuelphp/upload": "2.0.1",
-		"twitter/bootstrap": "2.3.*",
+        "fuelphp/upload": "2.0.1",
+        "twbs/bootstrap": "3.0.2",
         "opauth/opauth": "0.4.*",
         "opauth/facebook": "dev-master",
         "opauth/google": "dev-master",
@@ -34,7 +34,7 @@
     "config": {
         "vendor-dir": "fuel/vendor"
     },
-	"scripts": {
+    "scripts": {
         "post-install-cmd": [
             "php oil r install"
         ]

@@ -29,6 +29,3 @@
 	path = fuel/packages/promoter
 	url = https://github.com/TeamPalmTree/authority-promoter
 	branch = master
-[submodule "fuel/packages/less"]
-	path = fuel/packages/less
-	url = https://github.com/TeamPalmTree/fuel-less

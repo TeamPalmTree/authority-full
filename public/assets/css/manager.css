@@ -1,0 +1,26 @@
+.authority-manager {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-flow: row;
+  flex-direction: row;
+}
+.authority-manager-column {
+  position: relative;
+  overflow: auto;
+  flex: 1;
+  display: flex;
+  flex-flow: column;
+  flex-direction: column;
+}
+.authority-manager-spacer {
+  flex: none;
+  width: 1px;
+}
+.authority-manager-table {
+  flex: 1;
+}
+.authority-manager .navbar.active {
+  background-color: black;
+}
