@@ -40,7 +40,7 @@ function permission_model(permission, selected) {
     // read/write actions from input
     this.entered_actions = ko.computed({
         read: function () { return this.actions().join(','); },
-        write: function (value) { this.actions(value.split(',')); },
+        write: function (value) { (value == "") ? this.actions([]) : this.actions(value.split(',')); },
         owner: this
     });
 
