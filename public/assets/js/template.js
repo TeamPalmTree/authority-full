@@ -2,6 +2,7 @@
 // GROUP //
 ///////////
 
+// group
 function group_model(group, selected) {
 
     this.id = ko.observable();
@@ -21,12 +22,13 @@ function group_model(group, selected) {
     // mapping
     ko.mapping.fromJS(group, {}, this);
 
-}
+};
 
 ////////////////
 // PERMISSION //
 ////////////////
 
+// permission
 function permission_model(permission, selected) {
 
     this.id = ko.observable();
@@ -56,12 +58,13 @@ function permission_model(permission, selected) {
     // mapping
     ko.mapping.fromJS(permission, {}, this);
 
-}
+};
 
 //////////
 // ROLE //
 //////////
 
+// role
 function role_model(role, selected) {
 
     this.id = ko.observable();
@@ -116,12 +119,28 @@ function role_model(role, selected) {
     // mapping
     ko.mapping.fromJS(role, {}, this);
 
-}
+};
 
 //////////
 // USER //
 //////////
 
+// user metadata
+function user_metadata_model(user_metadata) {
+
+    // members
+    this.id = ko.observable();
+    this.key = ko.observable();
+    this.value = ko.observable();
+    this.selected = ko.observable(false);
+    // mapping
+    ko.mapping.fromJS(user_metadata, {
+        'include': [ 'key', 'value' ]
+    }, this);
+
+};
+
+// user
 function user_model(user, selected) {
 
     this.id = ko.observable();
@@ -138,12 +157,63 @@ function user_model(user, selected) {
     // mapping
     ko.mapping.fromJS(user, {}, this);
 
-}
+};
+
+// user profile
+function user_profile_model(user_profile) {
+
+    // members
+    this.metadatas = ko.observableArray([]);
+    this.id = ko.observable();
+
+    // selected metadatas count
+    this.selected_metadatas_count = ko.computed(function() {
+        var count = 0;
+        // get selected metadatas
+        ko.utils.arrayForEach(this.metadatas(), function(metadata) {
+            if (metadata.selected()) { count++; }
+        }.bind(this));
+        return count;
+    }.bind(this));
+
+    // select all metadatas
+    this.select_all = function() {
+        // if we have no selected metadatas, select them all
+        var none_selected = (this.selected_metadatas_count() == 0);
+        // select all metadatas
+        ko.utils.arrayForEach(this.metadatas(), function(metadata) {
+            metadata.selected(none_selected);
+        }.bind(this));
+    }.bind(this);
+
+    // add metadata
+    this.add = function() {
+        this.metadatas.push(new user_metadata_model());
+    };
+
+    // remove metadatas
+    this.remove = function() {
+        var selected_metadatas = [];
+        // get all selected metadatas
+        ko.utils.arrayForEach(this.metadatas(), function(metadata) {
+            if (metadata.selected()) selected_metadatas.push(metadata);
+        });
+        // remove all selected metadatas
+        this.metadatas.removeAll(selected_metadatas);
+    }.bind(this);
+
+    // mapping
+    ko.mapping.fromJS(user_profile, {
+        'metadatas': { create: function(options) { return new user_metadata_model(options.data); } }
+    }, this);
+
+};
 
 ///////////////////////
 // AUTHORITY MANAGER //
 ///////////////////////
 
+// authority manager
 function authority_manager_model() {
 
     // item arrays
@@ -823,7 +893,44 @@ function authority_manager_model() {
     // REMOVE //
     ////////////
 
+    // remove
     this.remove = function() {
+
+        // get mode
+        var current_type = this.current_type();
+        // switch on type
+        switch (current_type) {
+            case 'user_model':
+                modal.title('DELETE USERS');
+                modal.text('Delete selected users?');
+                break;
+            case 'group_model':
+                modal.title('DELETE GROUPS');
+                modal.text('Delete selected groups?');
+                break;
+            case 'role_model':
+                modal.title('DELETE ROLES');
+                modal.text('Delete selected roles?');
+                break;
+            case 'permission_model':
+                modal.title('DELETE PERMISSIONS');
+                modal.text('Delete selected permissions?');
+                break;
+        }
+
+        // set up modal type
+        modal.type('action');
+        // set modal ok text
+        modal.ok_text('DELETE');
+        // set modal callback
+        modal.ok = this.remove_ok;
+        // show modal
+        modal.show();
+
+    }.bind(this);
+
+    // remove ok
+    this.remove_ok = function() {
 
         // get mode
         var current_type = this.current_type();
@@ -831,6 +938,7 @@ function authority_manager_model() {
         var filtered = this.get_filtered(current_type);
         // get selected from type and to type ids
         var ids = this.get_ids(filtered);
+
         // post call to do deletes
         $.post('/manager/remove.json', {
             type: current_type,
@@ -850,6 +958,73 @@ function authority_manager_model() {
             // fail
             this.fail('Remove');
         }.bind(this));
+
+    }.bind(this);
+
+    /////////////////////////
+    // MODIFY USER PROFILE //
+    /////////////////////////
+
+    // modify user profile
+    this.modify_user_profile = function() {
+
+        // reset the modal
+        modal.reset();
+        // get filtered array for type
+        var filtered = this.get_filtered('user_model');
+        // get selected from type and to type ids
+        var ids = this.get_ids(filtered);
+        // get selected ids
+        var selected_ids = ids['selected'];
+        // verify we only got one
+        if (selected_ids.length != 1)
+            return;
+        // get selected id
+        var selected_id = selected_ids[0];
+
+        // post call to get shared profile fields
+        $.get('/manager/user_metadatas.json', {
+            id: selected_id
+        }, function(data) {
+
+            // create the user profile object
+            var user_profile = new user_profile_model({
+                'metadatas': data ? data : [],
+                'id': selected_id
+            });
+
+            // set model title
+            modal.title('MODIFY USER PROFILE');
+            // set modal template
+            modal.template('user-profile-form');
+            // set object
+            modal.object(user_profile);
+            // set up modal
+            modal.type('template');
+            // set modal callback
+            modal.ok = this.modify_user_profile_ok;
+            // show modal
+            modal.show();
+
+        }.bind(this)).fail(function() {
+            // fail
+            this.fail('User Metadatas');
+        }.bind(this));
+
+    }.bind(this);
+
+    // modify user profile ok
+    this.modify_user_profile_ok = function() {
+
+        // call to re-profile users
+        $.post('/manager/user_metadatas.json', {
+            id: modal.object().id(),
+            metadatas: ko.mapping.toJS(modal.object().metadatas)
+        }).fail(function() {
+            this.fail('Save User Metadatas');
+        }.bind(this));
+        // hide modal
+        modal.hide();
 
     }.bind(this);
 
