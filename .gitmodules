@@ -25,4 +25,3 @@
 [submodule "fuel/packages/promoter"]
 	path = fuel/packages/promoter
 	url = https://github.com/TeamPalmTree/authority-promoter
-	branch = master
