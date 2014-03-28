@@ -3,8 +3,11 @@
 ///////////
 
 // group
-function group_model(group, selected) {
+function Group_Model(group, selected) {
 
+    // self
+    var self = this;
+    // members
     this.id = ko.observable();
     this.name = ko.observable();
     this.assigned_permission_actions = ko.observableArray();
@@ -12,8 +15,8 @@ function group_model(group, selected) {
 
     // select group
     this.select = function() {
-        this.selected(!this.selected());
-    }.bind(this);
+        self.selected(!self.selected());
+    };
 
     // initialize
     if (!group)
@@ -29,8 +32,11 @@ function group_model(group, selected) {
 ////////////////
 
 // permission
-function permission_model(permission, selected) {
+function Permission_Model(permission, selected) {
 
+    // self
+    var self = this;
+    // members
     this.id = ko.observable();
     this.area = ko.observable();
     this.permission = ko.observable();
@@ -41,15 +47,15 @@ function permission_model(permission, selected) {
 
     // read/write actions from input
     this.entered_actions = ko.computed({
-        read: function () { return this.actions().join(','); },
-        write: function (value) { (value == "") ? this.actions([]) : this.actions(value.split(',')); },
-        owner: this
+        read: function () { return self.actions().join(','); },
+        write: function (value) { (value == "") ? self.actions([]) : self.actions(value.split(',')); },
+        owner: self
     });
 
     // select permission
     this.select = function() {
-        this.selected(!this.selected());
-    }.bind(this);
+        self.selected(!self.selected());
+    };
 
     // initialize
     if (!permission)
@@ -65,8 +71,11 @@ function permission_model(permission, selected) {
 //////////
 
 // role
-function role_model(role, selected) {
+function Role_Model(role, selected) {
 
+    // self
+    var self = this;
+    // members
     this.id = ko.observable();
     this.name = ko.observable();
     this.filter = ko.observable();
@@ -77,7 +86,7 @@ function role_model(role, selected) {
     this.filter_css = ko.computed(function() {
 
         // switch on filter
-        switch (this.filter()) {
+        switch (self.filter()) {
             case 'A':
                 return 'label-success';
             case 'D':
@@ -88,13 +97,13 @@ function role_model(role, selected) {
                 return null;
         };
 
-    }.bind(this));
+    });
 
     // filter text
     this.filter_text = ko.computed(function() {
 
         // switch on filter
-        switch (this.filter()) {
+        switch (self.filter()) {
             case 'A':
                 return 'ALL ACCESS';
             case 'D':
@@ -105,12 +114,12 @@ function role_model(role, selected) {
                 return null;
         };
 
-    }.bind(this));
+    });
 
     // select role
     this.select = function() {
-        this.selected(!this.selected());
-    }.bind(this);
+        self.selected(!self.selected());
+    };
 
     // initialize
     if (!role)
@@ -126,7 +135,7 @@ function role_model(role, selected) {
 //////////
 
 // user metadata
-function user_metadata_model(user_metadata) {
+function User_Metadata_Model(user_metadata) {
 
     // members
     this.id = ko.observable();
@@ -141,8 +150,9 @@ function user_metadata_model(user_metadata) {
 };
 
 // user
-function user_model(user, selected) {
+function User_Model(user, selected) {
 
+    // members
     this.id = ko.observable();
     this.username = ko.observable();
     this.password = ko.observable();
@@ -160,8 +170,10 @@ function user_model(user, selected) {
 };
 
 // user profile
-function user_profile_model(user_profile) {
+function User_Profile_Model(user_profile) {
 
+    // self
+    var self = this;
     // members
     this.metadatas = ko.observableArray([]);
     this.id = ko.observable();
@@ -170,41 +182,41 @@ function user_profile_model(user_profile) {
     this.selected_metadatas_count = ko.computed(function() {
         var count = 0;
         // get selected metadatas
-        ko.utils.arrayForEach(this.metadatas(), function(metadata) {
+        ko.utils.arrayForEach(self.metadatas(), function(metadata) {
             if (metadata.selected()) { count++; }
-        }.bind(this));
+        });
         return count;
-    }.bind(this));
+    });
 
     // select all metadatas
     this.select_all = function() {
         // if we have no selected metadatas, select them all
-        var none_selected = (this.selected_metadatas_count() == 0);
+        var none_selected = (self.selected_metadatas_count() == 0);
         // select all metadatas
-        ko.utils.arrayForEach(this.metadatas(), function(metadata) {
+        ko.utils.arrayForEach(self.metadatas(), function(metadata) {
             metadata.selected(none_selected);
-        }.bind(this));
-    }.bind(this);
+        });
+    };
 
     // add metadata
     this.add = function() {
-        this.metadatas.push(new user_metadata_model());
+        self.metadatas.push(new User_Metadata_Model());
     };
 
     // remove metadatas
     this.remove = function() {
         var selected_metadatas = [];
         // get all selected metadatas
-        ko.utils.arrayForEach(this.metadatas(), function(metadata) {
+        ko.utils.arrayForEach(self.metadatas(), function(metadata) {
             if (metadata.selected()) selected_metadatas.push(metadata);
         });
         // remove all selected metadatas
-        this.metadatas.removeAll(selected_metadatas);
-    }.bind(this);
+        self.metadatas.removeAll(selected_metadatas);
+    };
 
     // mapping
     ko.mapping.fromJS(user_profile, {
-        'metadatas': { create: function(options) { return new user_metadata_model(options.data); } }
+        'metadatas': { create: function(options) { return new User_Metadata_Model(options.data); } }
     }, this);
 
 };
@@ -213,9 +225,13 @@ function user_profile_model(user_profile) {
 // AUTHORITY MANAGER //
 ///////////////////////
 
-// authority manager
-function authority_manager_model() {
+// manager index model
+function Manager_Index_Model() {
 
+    // self
+    var self = this;
+    // inherit
+    Component_Model.call(this);
     // item arrays
     this.users = ko.observableArray();
     this.groups = ko.observableArray();
@@ -232,7 +248,7 @@ function authority_manager_model() {
     this.roles_filter = ko.observable('');
     this.permissions_filter = ko.observable('');
     // mode
-    this.current_type = ko.observable();
+    this.current_type = ko.observable('');
 
     //////////////
     // MESSAGES //
@@ -295,34 +311,34 @@ function authority_manager_model() {
     // filtered users
     this.filtered_users = ko.computed(function() {
         // return standard
-        if (this.current_type() == 'user_model') return this.users();
+        if (self.current_type() == 'User_Model') return self.users();
         // return locally filtered
-        return this.filter(this.users(), 'username', this.users_filter());
-    }.bind(this));
+        return self.filter(self.users(), 'username', self.users_filter());
+    });
 
     // filtered groups
     this.filtered_groups = ko.computed(function() {
         // return standard
-        if (this.current_type() == 'group_model') return this.groups();
+        if (self.current_type() == 'Group_Model') return self.groups();
         // return locally filtered
-        return this.filter(this.groups(), 'name', this.groups_filter());
-    }.bind(this));
+        return self.filter(self.groups(), 'name', self.groups_filter());
+    });
 
     // filtered roles
     this.filtered_roles = ko.computed(function() {
         // return standard
-        if (this.current_type() == 'role_model') return this.roles();
+        if (self.current_type() == 'Role_Model') return self.roles();
         // return locally filtered
-        return this.filter(this.roles(), 'name', this.roles_filter());
-    }.bind(this));
+        return self.filter(self.roles(), 'name', self.roles_filter());
+    });
 
     // filtered permissions
     this.filtered_permissions = ko.computed(function() {
         // return standard
-        if (this.current_type() == 'permission_model') return this.permissions();
+        if (self.current_type() == 'Permission_Model') return self.permissions();
         // return locally filtered
-        return this.filter(this.permissions(), 'permission', this.permissions_filter());
-    }.bind(this));
+        return self.filter(self.permissions(), 'permission', self.permissions_filter());
+    });
 
     //////////////
     // CLEARING //
@@ -340,35 +356,35 @@ function authority_manager_model() {
     this.clear = function(type) {
 
         // clear users
-        if (type != 'user_model') {
-            this.users.removeAll();
-            this.clear_filter(this.users_filter);
+        if (type != 'User_Model') {
+            self.users.removeAll();
+            self.clear_filter(self.users_filter);
         }
         // clear groups
-        if (type != 'group_model') {
-            this.groups.removeAll();
-            this.clear_filter(this.groups_filter);
+        if (type != 'Group_Model') {
+            self.groups.removeAll();
+            self.clear_filter(self.groups_filter);
         }
         // clear roles
-        if (type != 'role_model') {
-            this.roles.removeAll();
-            this.clear_filter(this.roles_filter);
+        if (type != 'Role_Model') {
+            self.roles.removeAll();
+            self.clear_filter(self.roles_filter);
         }
         // clear permissions
-        if (type != 'permission_model') {
-            this.permissions.removeAll();
-            this.clear_filter(this.permissions_filter);
+        if (type != 'Permission_Model') {
+            self.permissions.removeAll();
+            self.clear_filter(self.permissions_filter);
         }
 
         // if type specified, purge modified for type
         if (type) {
             // get modified array for type
-            var modified = this.get_modified(type);
+            var modified = self.get_modified(type);
             // clear out
             modified.removeAll();
         }
 
-    }.bind(this);
+    };
 
     /////////////////
     // MODE CHANGE //
@@ -376,8 +392,8 @@ function authority_manager_model() {
 
     // mode subscription
     this.current_type.subscribe(function() {
-        this.clear();
-    }.bind(this));
+        self.clear();
+    });
 
     //////////////////////////
     // FILTER SUBSCRIPTIONS //
@@ -387,57 +403,57 @@ function authority_manager_model() {
     this.users_filter.subscribe(function(filter) {
 
         // if we aren't in users mode, run the filter locally
-        if (this.current_type() != 'user_model') return;
+        if (self.current_type() != 'User_Model') return;
         // clear all but users
-        this.clear('user_model');
+        self.clear('User_Model');
         // if we are in users mode, filter server side
         $.get('/manager/users.json', { filter: filter }, function (data) {
-            this.users(ko.utils.arrayMap(data, function(user) { return new user_model(user); }));
-        }.bind(this));
+            self.users(ko.utils.arrayMap(data, function(user) { return new User_Model(user); }));
+        });
 
-    }.bind(this));
+    });
 
     // groups filter subscription
     this.groups_filter.subscribe(function(filter) {
 
         // if we aren't in groups mode, run the filter locally
-        if (this.current_type() != 'group_model') return;
+        if (self.current_type() != 'Group_Model') return;
         // clear all but groups
-        this.clear('group_model');
+        self.clear('Group_Model');
         // if we are in groups mode, filter server side
         $.get('/manager/groups.json', { filter: filter }, function (data) {
-            this.groups(ko.utils.arrayMap(data, function(group) { return new group_model(group); }));
-        }.bind(this));
+            self.groups(ko.utils.arrayMap(data, function(group) { return new Group_Model(group); }));
+        });
 
-    }.bind(this));
+    });
 
     // roles filter subscription
     this.roles_filter.subscribe(function(filter) {
 
         // if we aren't in roles mode, run the filter locally
-        if (this.current_type() != 'role_model') return;
+        if (self.current_type() != 'Role_Model') return;
         // clear all but roles
-        this.clear('role_model');
+        self.clear('Role_Model');
         // if we are in roles mode, filter server side
         $.get('/manager/roles.json', { filter: filter }, function (data) {
-            this.roles(ko.utils.arrayMap(data, function(role) { return new role_model(role); }));
-        }.bind(this));
+            self.roles(ko.utils.arrayMap(data, function(role) { return new Role_Model(role); }));
+        });
 
-    }.bind(this));
+    });
 
     // permissions filter subscription
     this.permissions_filter.subscribe(function(filter) {
 
         // if we aren't in permissions mode, run the filter locally
-        if (this.current_type() != 'permission_model') return;
+        if (self.current_type() != 'Permission_Model') return;
         // clear all but permissions
-        this.clear('permission_model');
+        self.clear('Permission_Model');
         // if we are in permissions mode, filter server side
         $.get('/manager/permissions.json', { filter: filter }, function (data) {
-            this.permissions(ko.utils.arrayMap(data, function(permission) { return new permission_model(permission); }));
-        }.bind(this));
+            self.permissions(ko.utils.arrayMap(data, function(permission) { return new Permission_Model(permission); }));
+        });
 
-    }.bind(this));
+    });
 
     ///////////////////////
     // ARRAYS MANAGEMENT //
@@ -447,37 +463,37 @@ function authority_manager_model() {
     this.get_modified = function(type) {
         // switch on item type
         switch (type) {
-            case 'user_model': return this.modified_users;
-            case 'group_model': return this.modified_groups;
-            case 'role_model': return this.modified_roles;
-            case 'permission_model': return this.modified_permissions;
+            case 'User_Model': return self.modified_users;
+            case 'Group_Model': return self.modified_groups;
+            case 'Role_Model': return self.modified_roles;
+            case 'Permission_Model': return self.modified_permissions;
         };
 
-    }.bind(this);
+    };
 
     // get filtered array for type
     this.get_filtered = function(type) {
         // switch on item type
         switch (type) {
-            case 'user_model': return this.filtered_users;
-            case 'group_model': return this.filtered_groups;
-            case 'role_model': return this.filtered_roles;
-            case 'permission_model': return this.filtered_permissions;
+            case 'User_Model': return self.filtered_users;
+            case 'Group_Model': return self.filtered_groups;
+            case 'Role_Model': return self.filtered_roles;
+            case 'Permission_Model': return self.filtered_permissions;
         };
 
-    }.bind(this);
+    };
 
     // get filtered array for type
     this.get_array = function(type) {
         // switch on item type
         switch (type) {
-            case 'user_model': return this.users;
-            case 'group_model': return this.groups;
-            case 'role_model': return this.roles;
-            case 'permission_model': return this.permissions;
+            case 'User_Model': return self.users;
+            case 'Group_Model': return self.groups;
+            case 'Role_Model': return self.roles;
+            case 'Permission_Model': return self.permissions;
         };
 
-    }.bind(this);
+    };
 
     // get selected/unselected ids
     this.get_ids = function(array) {
@@ -527,13 +543,13 @@ function authority_manager_model() {
         //////////////////////////////////
 
         // get filtered array for type
-        var from_filtered = this.get_filtered(from_type);
+        var from_filtered = self.get_filtered(from_type);
         // get selected ids
-        var from_ids = this.get_ids(from_filtered);
+        var from_ids = self.get_ids(from_filtered);
         // if we have no selections
         if (from_ids['selected'].length == 0) {
             // clear other sections
-            this.clear(from_type);
+            self.clear(from_type);
             // done
             return;
         }
@@ -547,34 +563,34 @@ function authority_manager_model() {
 
             // users
             if (assignments['assigned_users']) {
-                var assigned_users = ko.utils.arrayMap(assignments['assigned_users'], function(user) { return new user_model(user, true); });
-                this.users(assigned_users);
+                var assigned_users = ko.utils.arrayMap(assignments['assigned_users'], function(user) { return new User_Model(user, true); });
+                self.users(assigned_users);
             }
 
             // groups
             if (assignments['assigned_groups']) {
-                var assigned_groups = ko.utils.arrayMap(assignments['assigned_groups'], function(group) { return new group_model(group, true); });
-                var unassigned_groups = ko.utils.arrayMap(assignments['unassigned_groups'], function(group) { return new group_model(group); });
-                this.groups(assigned_groups.concat(unassigned_groups));
+                var assigned_groups = ko.utils.arrayMap(assignments['assigned_groups'], function(group) { return new Group_Model(group, true); });
+                var unassigned_groups = ko.utils.arrayMap(assignments['unassigned_groups'], function(group) { return new Group_Model(group); });
+                self.groups(assigned_groups.concat(unassigned_groups));
             }
 
             // roles
             if (assignments['assigned_roles']) {
-                var assigned_roles = ko.utils.arrayMap(assignments['assigned_roles'], function(role) { return new role_model(role, true); });
-                var unassigned_roles = ko.utils.arrayMap(assignments['unassigned_roles'], function(role) { return new role_model(role); });
-                this.roles(assigned_roles.concat(unassigned_roles));
+                var assigned_roles = ko.utils.arrayMap(assignments['assigned_roles'], function(role) { return new Role_Model(role, true); });
+                var unassigned_roles = ko.utils.arrayMap(assignments['unassigned_roles'], function(role) { return new Role_Model(role); });
+                self.roles(assigned_roles.concat(unassigned_roles));
             }
 
             // permissions
             if (assignments['assigned_permissions']) {
 
-                var assigned_permissions = ko.utils.arrayMap(assignments['assigned_permissions'], function(permission) { return new permission_model(permission, true); })
+                var assigned_permissions = ko.utils.arrayMap(assignments['assigned_permissions'], function(permission) { return new Permission_Model(permission, true); })
                 // process permission actions
                 ko.utils.arrayForEach(assigned_permissions, function(assigned_permission) {
                     assigned_permission.assigned_actions(assignments['assigned_permission_actions'][assigned_permission.id()]);
                 });
                 // add unassigned items and set
-                this.permissions(assigned_permissions.concat(ko.utils.arrayMap(assignments['unassigned_permissions'], function(permission) { return new permission_model(permission); })));
+                self.permissions(assigned_permissions.concat(ko.utils.arrayMap(assignments['unassigned_permissions'], function(permission) { return new Permission_Model(permission); })));
 
             }
 
@@ -607,23 +623,23 @@ function authority_manager_model() {
             ////////////////////
 
             // clear from modified
-            var from_modified = this.get_modified(from_type);
+            var from_modified = self.get_modified(from_type);
             from_modified.removeAll();
             // clear to modified if we have it
             if (to_type) {
-                var to_modified = this.get_modified(to_type);
+                var to_modified = self.get_modified(to_type);
                 to_modified.removeAll();
             }
 
-        }.bind(this)).fail(function() {
+        }).fail(function() {
 
             // fail & clear
-            this.fail('Load');
-            this.clear(from_type);
+            self.fail('Load');
+            self.clear(from_type);
 
-        }.bind(this));
+        });
 
-    }.bind(this);
+    };
 
     ////////////
     // ASSIGN //
@@ -633,11 +649,11 @@ function authority_manager_model() {
     this.assign = function(from_type, to_type) {
 
         // get filtered array for type
-        var from_filtered = this.get_filtered(from_type);
-        var to_modified = this.get_modified(to_type);
+        var from_filtered = self.get_filtered(from_type);
+        var to_modified = self.get_modified(to_type);
         // get selected from type and to type ids
-        var from_ids = this.get_ids(from_filtered);
-        var to_ids = this.get_ids(to_modified);
+        var from_ids = self.get_ids(from_filtered);
+        var to_ids = self.get_ids(to_modified);
         // get call to do assignments
         $.post('/manager/assign.json', {
             from_type: from_type,
@@ -647,13 +663,13 @@ function authority_manager_model() {
             unassign_to_ids: to_ids['unselected']
         }, function() {
             // reload
-            this.load(from_type, to_type);
-        }.bind(this)).fail(function() {
+            self.load(from_type, to_type);
+        }).fail(function() {
             // fail
-            this.fail('Assign');
-        }.bind(this));
+            self.fail('Assign');
+        });
 
-    }.bind(this);
+    };
 
     // assign
     this.assign_permission_actions = function(item, permission_action, assign) {
@@ -664,13 +680,13 @@ function authority_manager_model() {
         // get item type
         var type = item.constructor.name;
         // if we have a specific permission, it is the only to id
-        if (type == 'permission_model') {
+        if (type == 'Permission_Model') {
             // from type is current type
-            from_type = this.current_type();
+            from_type = self.current_type();
             // get from filtered
-            var from_filtered = this.get_filtered(from_type);
+            var from_filtered = self.get_filtered(from_type);
             // from ids are those selected of the current type
-            from_ids = this.get_ids(from_filtered);
+            from_ids = self.get_ids(from_filtered);
             from_ids = from_ids['selected'];
             // permission ids are those of the clicked permission item
             perms_ids = [ item.id() ];
@@ -680,9 +696,9 @@ function authority_manager_model() {
             // from ids are that of the item
             from_ids = [ item.id() ];
             // get to filtered permissions
-            var to_filtered = this.get_filtered('permission_model');
+            var to_filtered = self.get_filtered('Permission_Model');
             // get to ids
-            var to_ids = this.get_ids(to_filtered);
+            var to_ids = self.get_ids(to_filtered);
             // get perm ids
             perms_ids = to_ids['selected'];
         }
@@ -696,16 +712,16 @@ function authority_manager_model() {
             assign: assign
         }, function() {
             // reload
-            if (type != 'permission_model')
-                this.load('permission_model');
+            if (type != 'Permission_Model')
+                self.load('Permission_Model');
             else
-                this.load(from_type, 'permission_model');
-        }.bind(this)).fail(function() {
+                self.load(from_type, 'Permission_Model');
+        }).fail(function() {
             // fail
-            this.fail('Assign Permission Action');
-        }.bind(this));
+            self.fail('Assign Permission Action');
+        });
 
-    }.bind(this);
+    };
 
     /////////////////
     // LOAD/ASSIGN //
@@ -718,11 +734,11 @@ function authority_manager_model() {
         var current_type = this.current_type();
         // load or assign
         if (type == current_type)
-            this.load(current_type);
+            self.load(current_type);
         else
-            this.assign(current_type, type);
+            self.assign(current_type, type);
 
-    }.bind(this);
+    };
 
     ////////////
     // SELECT //
@@ -736,25 +752,25 @@ function authority_manager_model() {
         // get item type
         var type = item.constructor.name;
         // get modified array for this type
-        var modified = this.get_modified(type);
+        var modified = self.get_modified(type);
         // push modified item to array
         modified.push(item);
         // load assign based on item type
-        this.load_assign(type);
+        self.load_assign(type);
 
-    }.bind(this);
+    };
 
     // select all items
     this.select_all = function(type) {
 
         // get filtered array for this type
-        var filtered = this.get_filtered(type);
+        var filtered = self.get_filtered(type);
         // verify we have at least one item
         if (filtered().length == 0)
             return;
 
         // get modified array for this type
-        var modified = this.get_modified(type);
+        var modified = self.get_modified(type);
         // get selected status of first item
         var selected = !filtered()[0].selected();
         // invert selection
@@ -767,9 +783,9 @@ function authority_manager_model() {
         });
 
         // load/assign items
-        this.load_assign(type);
+        self.load_assign(type);
 
-    }.bind(this);
+    };
 
     ////////////////
     // ADD/MODIFY //
@@ -778,26 +794,26 @@ function authority_manager_model() {
     this.add_modify = function(modify) {
 
         // reset the modal
-        modal.reset();
+        window.standard.modal.reset();
 
         var object;
         // get mode
-        var current_type = this.current_type();
+        var current_type = self.current_type();
         // if we are modifying, set modal object to current
         if (modify) {
 
             // get filtered array for type
-            var filtered = this.get_filtered(current_type);
+            var filtered = self.get_filtered(current_type);
             // get selected from type and to type ids
-            var selected = this.get_selected(filtered);
+            var selected = self.get_selected(filtered);
             // verify only one selected
             if (selected.length != 1)
                 return;
 
             // set original object
-            modal.original_object = selected[0];
+            window.standard.modal.original_object = selected[0];
             // deep copy selected to modal
-            object = new window[current_type](ko.mapping.toJS(modal.original_object));
+            object = new window[current_type](ko.mapping.toJS(window.standard.modal.original_object));
 
         } else {
 
@@ -808,86 +824,86 @@ function authority_manager_model() {
 
         // switch on type
         switch (current_type) {
-            case 'user_model':
-                modal.title('ADD USER');
-                modal.template('user-form');
+            case 'User_Model':
+                window.standard.modal.title('ADD USER');
+                window.standard.modal.template('user-form');
                 break;
-            case 'group_model':
-                modal.title('ADD GROUP');
-                modal.template('group-form');
+            case 'Group_Model':
+                window.standard.modal.title('ADD GROUP');
+                window.standard.modal.template('group-form');
                 break;
-            case 'role_model':
-                modal.title('ADD ROLE');
-                modal.template('role-form');
+            case 'Role_Model':
+                window.standard.modal.title('ADD ROLE');
+                window.standard.modal.template('role-form');
                 break;
-            case 'permission_model':
-                modal.title('ADD PERMISSION');
-                modal.template('permission-form');
+            case 'Permission_Model':
+                window.standard.modal.title('ADD PERMISSION');
+                window.standard.modal.template('permission-form');
                 break;
         }
 
         // set object
-        modal.object(object);
+        window.standard.modal.object(object);
         // set up modal
-        modal.type('template');
+        window.standard.modal.type('template');
         // set modal callback
-        modal.ok = modify ? this.modify_ok : this.add_ok;
+        window.standard.modal.ok = modify ? self.modify_ok : self.add_ok;
         // show modal
-        modal.show();
+        window.standard.modal.show();
 
-    }.bind(this);
+    };
 
     // add modify ok
     this.add_modify_ok = function(modify) {
 
         // get mode
-        var current_type = this.current_type();
+        var current_type = self.current_type();
         // get call to do assignments
         $.post('/manager/add_modify.json', {
             type: current_type,
-            object: ko.mapping.toJS(modal.object)
+            object: ko.mapping.toJS(window.standard.modal.object)
         }, function(object) {
 
             // modify existing or add to array
             if (modify) {
                 // replace filtered item with modified object
-                ko.mapping.fromJS(object, {}, modal.original_object);
+                ko.mapping.fromJS(object, {}, window.standard.modal.original_object);
             } else {
                 // get array for current type
-                var array = this.get_array(current_type);
+                var array = self.get_array(current_type);
                 // push new object to array
                 array.push(new window[current_type](object));
             }
 
-        }.bind(this)).fail(function() {
+        }).fail(function() {
             // fail
-            this.fail('Add/Modify');
-        }.bind(this));
+            self.fail('Add/Modify');
+        });
 
         // hide modal
-        modal.hide();
+        window.standard.modal.hide();
 
-    }.bind(this);
+    };
 
     // add callback
     this.add_ok = function() {
-        this.add_modify_ok(false)
-    }.bind(this);
+        self.add_modify_ok(false)
+    };
 
     // modify callback
     this.modify_ok = function() {
-        this.add_modify_ok(true)
-    }.bind(this);
+        self.add_modify_ok(true)
+    };
 
     // add
     this.add = function() {
-        this.add_modify(false);
-    }.bind(this);
+        self.add_modify(false);
+    };
 
     // modify
     this.modify = function() {
-        this.add_modify(true);
-    }.bind(this);
+        self.add_modify(true);
+    };
 
     ////////////
     // REMOVE //
@@ -897,47 +913,47 @@ function authority_manager_model() {
     this.remove = function() {
 
         // get mode
-        var current_type = this.current_type();
+        var current_type = self.current_type();
         // switch on type
         switch (current_type) {
-            case 'user_model':
-                modal.title('DELETE USERS');
-                modal.text('Delete selected users?');
+            case 'User_Model':
+                window.standard.modal.title('DELETE USERS');
+                window.standard.modal.text('Delete selected users?');
                 break;
-            case 'group_model':
-                modal.title('DELETE GROUPS');
-                modal.text('Delete selected groups?');
+            case 'Group_Model':
+                window.standard.modal.title('DELETE GROUPS');
+                window.standard.modal.text('Delete selected groups?');
                 break;
-            case 'role_model':
-                modal.title('DELETE ROLES');
-                modal.text('Delete selected roles?');
+            case 'Role_Model':
+                window.standard.modal.title('DELETE ROLES');
+                window.standard.modal.text('Delete selected roles?');
                 break;
-            case 'permission_model':
-                modal.title('DELETE PERMISSIONS');
-                modal.text('Delete selected permissions?');
+            case 'Permission_Model':
+                window.standard.modal.title('DELETE PERMISSIONS');
+                window.standard.modal.text('Delete selected permissions?');
                 break;
         }
 
         // set up modal type
-        modal.type('action');
+        window.standard.modal.type('action');
         // set modal ok text
-        modal.ok_text('DELETE');
+        window.standard.modal.ok_text('DELETE');
         // set modal callback
-        modal.ok = this.remove_ok;
+        window.standard.modal.ok = self.remove_ok;
         // show modal
-        modal.show();
+        window.standard.modal.show();
 
-    }.bind(this);
+    };
 
     // remove ok
     this.remove_ok = function() {
 
         // get mode
-        var current_type = this.current_type();
+        var current_type = self.current_type();
         // get filtered array for type
-        var filtered = this.get_filtered(current_type);
+        var filtered = self.get_filtered(current_type);
         // get selected from type and to type ids
-        var ids = this.get_ids(filtered);
+        var ids = self.get_ids(filtered);
 
         // post call to do deletes
         $.post('/manager/remove.json', {
@@ -946,20 +962,20 @@ function authority_manager_model() {
         }, function() {
 
             // get selected items
-            var selected = this.get_selected(filtered);
+            var selected = self.get_selected(filtered);
             // get array for type
-            var array = this.get_array(current_type);
+            var array = self.get_array(current_type);
             // remove all selected items
             array.removeAll(selected);
             // reload
-            this.clear(current_type);
+            self.clear(current_type);
 
-        }.bind(this)).fail(function() {
+        }).fail(function() {
             // fail
-            this.fail('Remove');
-        }.bind(this));
+            self.fail('Remove');
+        });
 
-    }.bind(this);
+    };
 
     /////////////////////////
     // MODIFY USER PROFILE //
@@ -969,11 +985,11 @@ function authority_manager_model() {
     this.modify_user_profile = function() {
 
         // reset the modal
-        modal.reset();
+        window.standard.modal.reset();
         // get filtered array for type
-        var filtered = this.get_filtered('user_model');
+        var filtered = self.get_filtered('User_Model');
         // get selected from type and to type ids
-        var ids = this.get_ids(filtered);
+        var ids = self.get_ids(filtered);
         // get selected ids
         var selected_ids = ids['selected'];
         // verify we only got one
@@ -988,71 +1004,67 @@ function authority_manager_model() {
         }, function(data) {
 
             // create the user profile object
-            var user_profile = new user_profile_model({
+            var user_profile = new User_Profile_Model({
                 'metadatas': data ? data : [],
                 'id': selected_id
             });
 
             // set model title
-            modal.title('MODIFY USER PROFILE');
+            window.standard.modal.title('MODIFY USER PROFILE');
             // set modal template
-            modal.template('user-profile-form');
+            window.standard.modal.template('user-profile-form');
             // set object
-            modal.object(user_profile);
+            window.standard.modal.object(user_profile);
             // set up modal
-            modal.type('template');
+            window.standard.modal.type('template');
             // set modal callback
-            modal.ok = this.modify_user_profile_ok;
+            window.standard.modal.ok = self.modify_user_profile_ok;
             // show modal
-            modal.show();
+            window.standard.modal.show();
 
-        }.bind(this)).fail(function() {
+        }).fail(function() {
             // fail
-            this.fail('User Metadatas');
-        }.bind(this));
+            self.fail('User Metadatas');
+        });
 
-    }.bind(this);
+    };
 
     // modify user profile ok
     this.modify_user_profile_ok = function() {
 
         // call to re-profile users
         $.post('/manager/user_metadatas.json', {
-            id: modal.object().id(),
-            metadatas: ko.mapping.toJS(modal.object().metadatas)
+            id: window.standard.modal.object().id(),
+            metadatas: ko.mapping.toJS(window.standard.modal.object().metadatas)
         }).fail(function() {
-            this.fail('Save User Metadatas');
-        }.bind(this));
+            self.fail('Save User Metadatas');
+        });
         // hide modal
-        modal.hide();
+        window.standard.modal.hide();
 
-    }.bind(this);
+    };
 
-    ////////////////
-    // INITIALIZE //
-    ////////////////
+    // initialize
+    this.initialize = function() {
+        // call base
+        Component_Model.prototype.initialize.call(this);
+        // set initial mode
+        self.current_type('User_Model');
+    };
 
-    // start in users mode
-    this.current_type('user_model');
+};
 
-}
-
-///////////
-// HOOKS //
-///////////
-
-// manager
-function hook_authority_manager() {
-
-    // playing
-    ko.applyBindings(new authority_manager_model(), document.getElementById('authority-manager'));
-
-}
+// manager index model prototype
+Manager_Index_Model.prototype = Object.create(Component_Model.prototype);
+Manager_Index_Model.prototype.constructor = Manager_Index_Model;
 
 ///////////
 // READY //
 ///////////
 
 $(function() {
-    hook_authority_manager();
+
+    // set up standard model
+    window.standard.initialize_component('modal');
+
 });
